@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Car Price Prediction</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            padding: 20px;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            margin: auto;
+        }
+        label {
+            display: block;
+            text-align: left;
+            margin: 10px 0 5px;
+            color: #555;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        h3 {
+            color: #4CAF50;
+            margin-top: 20px;
+        }
+        @media (max-width: 600px) {
+            form {
+                width: 90%;
+            }
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Car Price Prediction</h2>
+
+    <form action="/predict" method="post">
+        <!-- Brand Selection -->
+        <label for="brand">Brand:</label>
+        <select id="brand" name="brand" required>
+            <option value="">Select Brand</option>
+            {% for brand in brands %}
+                <option value="{{ brand }}">{{ brand }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Model Selection -->
+        <label for="model">Model:</label>
+        <select id="model" name="model" required>
+            <option value="">Select Model</option>
+        </select>
+
+        <!-- Year -->
+        <label for="year">Year:</label>
+        <input type="number" id="year" name="year" required>
+
+        <!-- Fuel Type -->
+        <label for="fuel_type">Fuel Type:</label>
+        <select id="fuel_type" name="fuel_type" required>
+            <option value="">Select Fuel Type</option>
+            {% for fuel in fuel_types %}
+                <option value="{{ fuel }}">{{ fuel }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Transmission -->
+        <label for="transmission">Transmission:</label>
+        <select id="transmission" name="transmission" required>
+            <option value="">Select Transmission</option>
+            {% for transmission in transmissions %}
+                <option value="{{ transmission }}">{{ transmission }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Kms Driven -->
+        <label for="kms_driven">Kms Driven:</label>
+        <input type="number" id="kms_driven" name="kms_driven" required>
+
+        <!-- Doors -->
+        <label for="doors">Doors:</label>
+        <input type="number" id="doors" name="doors" required>
+
+        <!-- Owner Count -->
+        <label for="owner_count">Owner Count:</label>
+        <input type="number" id="owner_count" name="owner_count" required>
+
+        <!-- Submit Button -->
+        <button type="submit">Predict</button>
+    </form>
+
+    <!-- Prediction Result -->
+    {% if prediction_text %}
+        <h3>{{ prediction_text }}</h3>
+    {% endif %}
+
+    <script>
+        $(document).ready(function(){
+            $('#brand').on('change', function(){
+                var selectedBrand = $(this).val();
+                if(selectedBrand){
+                    $.ajax({
+                        url: '/get_models',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({brand: selectedBrand}),
+                        success: function(response){
+                            var modelDropdown = $('#model');
+                            modelDropdown.empty();
+                            modelDropdown.append('<option value="">Select Model</option>');
+                            $.each(response.models, function(index, value){
+                                modelDropdown.append('<option value="'+ value +'">'+ value +'</option>');
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
