@@ -110,5 +110,3 @@ if st.button("Predict Price", help="Click to get the predicted price of the car.
             st.error(f"An error occurred during prediction: {e}")
             st.warning("Please check your input values and try again.")
 
-st.markdown("---")
-st.markdown("Developed with ❤️ using Streamlit")
