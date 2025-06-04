@@ -2,34 +2,9 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
-import pymysql
 
 # --- Streamlit UI Configuration (MUST BE THE FIRST STREAMLIT COMMAND) ---
 st.set_page_config(page_title="Car Price Predictor", layout="centered")
-
-# --- Database Configuration (Update with your MySQL credentials) ---
-DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'password123',
-    'database': 'Car_Price_DB'
-}
-
-# --- Function to establish database connection ---
-@st.cache_resource
-def get_db_connection():
-    """Establishes and returns a database connection.
-    
-    NOTE: If you encounter an error like "'cryptography' package is required for sha256_password...",
-    you need to install the 'cryptography' package: pip install cryptography
-    This is often required for newer MySQL authentication methods.
-    """
-    try:
-        conn = pymysql.connect(**DB_CONFIG)
-        return conn
-    except Exception as e:
-        st.error(f"Error connecting to database: {e}")
-        return None
 
 # --- Load Dataset and Model ---
 # Use st.cache_data to cache the loading of heavy resources
@@ -131,30 +106,9 @@ if st.button("Predict Price", help="Click to get the predicted price of the car.
 
             st.success(f"**Predicted Price: ${predicted_price:,.2f}**")
 
-            # --- Store input and result in MySQL ---
-            conn = get_db_connection()
-            if conn:
-                try:
-                    cursor = conn.cursor()
-                    insert_query = """
-                    INSERT INTO car_price (brand, model, year, fuel_type, transmission, kms_driven, doors, owner_count, predicted_price)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    """
-                    cursor.execute(insert_query, (
-                        brand, model_name, year, fuel_type, transmission,
-                        kms_driven, doors, owner_count, predicted_price
-                    ))
-                    conn.commit()
-                    st.info("Prediction details saved to database.")
-                except pymysql.Error as db_err:
-                    st.error(f"Error saving to database: {db_err}")
-                finally:
-                    cursor.close()
-                    conn.close()
-            else:
-                st.warning("Could not save to database due to connection error.")
-
         except Exception as e:
             st.error(f"An error occurred during prediction: {e}")
             st.warning("Please check your input values and try again.")
 
+st.markdown("---")
+st.markdown("Developed with ❤️ using Streamlit")
